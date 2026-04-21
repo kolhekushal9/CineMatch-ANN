@@ -8,10 +8,19 @@ from recommender import recommender
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, 'frontend')
 
+db_path = os.path.join(BASE_DIR, 'app.db')
+if os.environ.get("VERCEL"):
+    import shutil
+    tmp_db_path = "/tmp/app.db"
+    # To allow fresh writes on ephemeral cloud instances
+    if not os.path.exists(tmp_db_path) and os.path.exists(db_path):
+        shutil.copy2(db_path, tmp_db_path)
+    db_path = tmp_db_path
+
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'app.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
