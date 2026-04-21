@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+app.db
+model_training/data/
+model_training/model.h5
+model_training/mappings.json
+model_training/movies_processed.csv
+.DS_Store

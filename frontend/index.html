@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMatch | AI Movie Recommendations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="background-elements">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+    </div>
+
+
+
+    <!-- Main Dashboard View -->
+    <div id="dashboard-view" class="view active">
+        <nav class="glass-nav">
+            <div class="nav-brand">CineMatch AI</div>
+        </nav>
+
+        <main class="dashboard-content">
+            <!-- Recommendations Section -->
+            <section class="section">
+                <h2>Top Recommendations For You</h2>
+                <p class="subtitle">Based on your Artificial Neural Network Profile</p>
+                <div class="movie-grid" id="recommendations-grid">
+                    <div class="spinner"></div>
+                </div>
+            </section>
+
+            <!-- Search Section -->
+            <section class="section">
+                <h2>Discover Movies</h2>
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Search for a movie...">
+                    <button id="search-btn" class="btn primary-btn">Search</button>
+                </div>
+                <div class="movie-grid" id="movies-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
