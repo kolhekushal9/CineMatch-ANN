@@ -5,6 +5,7 @@ import numpy as np
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEIGHTS_PATH = os.path.join(BASE_DIR, 'model_training', 'model_weights.npz')
 MAPPINGS_PATH = os.path.join(BASE_DIR, 'model_training', 'mappings.json')
+KNN_PATH = os.path.join(BASE_DIR, 'model_training', 'knn_similarities.json')
 
 def relu(x):
     return np.maximum(0, x)
@@ -15,6 +16,7 @@ class RecommenderService:
         self.mappings = None
         self.num_movies = 0
         self.num_users = 0
+        self.knn_similarities = {}
         
         self.load_model_and_mappings()
 
@@ -28,6 +30,10 @@ class RecommenderService:
             self.mappings = json.load(f)
             self.num_movies = self.mappings['num_movies']
             self.num_users = self.mappings['num_users']
+            
+        if os.path.exists(KNN_PATH):
+            with open(KNN_PATH, 'r') as f:
+                self.knn_similarities = json.load(f)
             
         self.weights = np.load(WEIGHTS_PATH)
 
@@ -80,6 +86,11 @@ class RecommenderService:
 
         results = [(movie_encoded_list[i], float(predictions[i])) for i in top_indices]
         return results
+
+    def get_knn_similar_movies(self, movie_encoded):
+        # Retrieve pre-computed mathematically similar movies from the parsed mapping
+        similar_encoded_list = self.knn_similarities.get(str(movie_encoded), [])
+        return similar_encoded_list
 
 # Singleton instance
 recommender = RecommenderService()

@@ -129,6 +129,27 @@ def get_recommendations():
             
     return jsonify(results), 200
 
+@app.route('/api/movies/<int:movie_id>/similar', methods=['GET'])
+def get_similar_movies(movie_id):
+    movie = Movie.query.filter_by(movie_id=movie_id).first()
+    if not movie or not recommender.mappings:
+        return jsonify({"msg": "Movie not found or model not ready"}), 404
+        
+    similar_encoded_list = recommender.get_knn_similar_movies(movie.movie_encoded)
+    
+    results = []
+    for m_encoded in similar_encoded_list:
+        sim_m = Movie.query.filter_by(movie_encoded=int(m_encoded)).first()
+        if sim_m:
+            results.append({
+                "id": sim_m.movie_id,
+                "encoded": sim_m.movie_encoded,
+                "title": sim_m.title,
+                "genres": sim_m.genres
+            })
+            
+    return jsonify(results), 200
+
 if __name__ == '__main__':
     # Initialize the DB if it hasn't been initialized
     if not os.path.exists(os.path.join(BASE_DIR, 'app.db')):

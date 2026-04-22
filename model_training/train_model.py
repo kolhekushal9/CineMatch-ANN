@@ -13,6 +13,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 MODEL_PATH = os.path.join(BASE_DIR, 'model.h5')
 MAPPINGS_PATH = os.path.join(BASE_DIR, 'mappings.json')
+KNN_PATH = os.path.join(BASE_DIR, 'knn_similarities.json')
 MOVIES_PROCESSED_PATH = os.path.join(BASE_DIR, 'movies_processed.csv')
 
 # Create directories
@@ -75,6 +76,37 @@ def prepare_data():
         
     return ratings_df, num_users, num_movies
 
+def compute_knn_similarities(ratings_df, num_users, num_movies):
+    print("Computing item-based KNN similarity geometrically using numpy...")
+    # Build a dense user-movie matrix. With 10,000 movies and 600 users, finding Cosine similarity is extremely fast.
+    R = np.zeros((num_movies, num_users), dtype=np.float32)
+    
+    # We iterate over rows to populate our sparse matrix representing ratings
+    for row in ratings_df.itertuples():
+        R[int(row.movie_encoded), int(row.user_encoded)] = row.rating
+
+    # Normalize movie vectors mathematically to length 1 for blazing fast Cosine Similarity via Dot Product
+    norms = np.linalg.norm(R, axis=1, keepdims=True)
+    # Avoid dividing by zero for movies with no ratings
+    R_norm = np.divide(R, norms, out=np.zeros_like(R), where=norms!=0)
+
+    knn_map = {}
+    print(f"Finding top 10 K-Nearest Neighbors for {num_movies} movies...")
+    for i in range(num_movies):
+        # Cosine similarity between movie i and all other movies
+        sims = np.dot(R_norm, R_norm[i])
+        # Ignore similarity with itself
+        sims[i] = -1.0
+        # Argsort gives small to large, so grab the last 10 and reverse
+        top_10 = np.argsort(sims)[-10:][::-1]
+        
+        # Only include neighbors that genuinely overlap in features (>0 similarity)
+        knn_map[str(i)] = [int(idx) for idx in top_10 if sims[idx] > 0]
+        
+    print("Exporting K-Nearest Neighbor relationships mapping to JSON...")
+    with open(KNN_PATH, 'w') as f:
+        json.dump(knn_map, f)
+        
 def build_model(num_users, num_movies, embedding_size=50):
     user_input = layers.Input(shape=(1,), name='user_encoded')
     # Adding +10000 to vocab size to allow new users created in the web app
@@ -124,6 +156,9 @@ if __name__ == '__main__':
     download_data()
     # To save time and keep it simple, we use a sample of ratings data to train quickly
     ratings_df, num_users, num_movies = prepare_data()
+    
+    # Mathematical K-Nearest Neighbors calculation based on UserxMovie rating matrix
+    compute_knn_similarities(ratings_df, num_users, num_movies)
     
     print(f"Num Users: {num_users}, Num Movies: {num_movies}")
     print("Normalizing target ratings to be faster / more stable training...")

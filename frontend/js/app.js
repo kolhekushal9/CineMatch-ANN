@@ -65,6 +65,7 @@ function renderMovies(movies, container, isRec = false) {
                 <span class="star" data-val="4">★</span>
                 <span class="star" data-val="5">★</span>
             </div>
+            ${!isRec ? `<button class="btn secondary-btn knn-btn" data-id="${movie.id}" data-title="${movie.title.replace(/"/g, '&quot;')}">Find Similar (KNN)</button>` : ''}
         `;
         container.appendChild(card);
     });
@@ -86,6 +87,37 @@ function renderMovies(movies, container, isRec = false) {
             });
         });
     });
+
+    // Attach KNN listeners
+    container.querySelectorAll('.knn-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const movieId = e.target.getAttribute('data-id');
+            const title = e.target.getAttribute('data-title');
+            await loadSimilarMovies(movieId, title);
+        });
+    });
+}
+
+async function loadSimilarMovies(movieId, title) {
+    const grid = document.getElementById('movies-grid');
+    grid.innerHTML = '<div class="spinner"></div>';
+    
+    // Change section title dynamically
+    const sectionTitle = grid.parentElement.querySelector('h2');
+    sectionTitle.innerText = `KNN Similar Movies for: ${title}`;
+
+    try {
+        const res = await fetch(`${API_BASE}/movies/${movieId}/similar`);
+        const movies = await res.json();
+        
+        if(movies.length === 0 || movies.msg) {
+            grid.innerHTML = '<p>No similar movies found.</p>';
+        } else {
+            renderMovies(movies, grid, true);
+        }
+    } catch(err) {
+        grid.innerHTML = '<p>Error loading similar movies.</p>';
+    }
 }
 
 async function rateMovie(movie_encoded, rating) {
