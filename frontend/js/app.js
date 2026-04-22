@@ -105,3 +105,22 @@ async function rateMovie(movie_encoded, rating) {
 }
 
 init();
+
+// Modal Logic
+const modal = document.getElementById('ann-modal');
+const btn = document.getElementById('how-it-works-btn');
+const span = document.getElementById('close-modal');
+
+if (btn && modal && span) {
+    btn.onclick = function() {
+        modal.classList.add('show');
+    }
+    span.onclick = function() {
+        modal.classList.remove('show');
+    }
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.classList.remove('show');
+        }
+    }
+}

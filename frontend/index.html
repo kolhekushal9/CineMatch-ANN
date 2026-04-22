@@ -19,6 +19,7 @@
     <div id="dashboard-view" class="view active">
         <nav class="glass-nav">
             <div class="nav-brand">CineMatch AI</div>
+            <button id="how-it-works-btn" class="btn ghost-btn">How ANN Works</button>
         </nav>
 
         <main class="dashboard-content">
@@ -41,6 +42,23 @@
                 <div class="movie-grid" id="movies-grid"></div>
             </section>
         </main>
+    </div>
+
+    <!-- ANN Info Modal -->
+    <div id="ann-modal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 600px; padding: 2rem;">
+            <span class="close-btn" id="close-modal">&times;</span>
+            <h2 style="margin-bottom: 1rem;">🧠 Artificial Neural Network</h2>
+            <p>This system uses <strong>Neural Collaborative Filtering (Deep Learning)</strong> instead of standard math. It assigns a 50-dimensional Vector (Embedding) to every User and Movie to extract deeply hidden personal movie preferences!</p>
+            <br>
+            <ul style="text-align: left; padding-left: 20px; line-height: 1.8;">
+                <li><strong>1. Embeddings:</strong> We fetch $User \rightarrow Vector_{u}$ and $Movie \rightarrow Vector_{m}$</li>
+                <li><strong>2. Concatenation:</strong> $X = [Vector_{u}, Vector_{m}]$ representing the combined state.</li>
+                <li><strong>3. Dense Hidden Layers:</strong> 3 layers (128, 64, 32 neurons) extract highly complex non-linear habits!</li>
+                <li><strong>4. Activation:</strong> We use ReLU $f(x) = max(0, x)$ which solves the vanishing gradient problem.</li>
+                <li><strong>5. Final Output:</strong> A single continuous predicted rating scalar.</li>
+            </ul>
+        </div>
     </div>
 
     <script src="js/app.js"></script>
